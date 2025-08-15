@@ -42,6 +42,8 @@ export const createShare = async (input: CreateShareInput): Promise<{ shareId: s
 
     const { ciphertext, iv, key } = await encryptData(dataToEncrypt);
 
+    console.log('Encryption completed. Key generated:', key);
+
     const shareData = {
       senderUid: input.senderUid,
       senderName: input.senderName,
@@ -56,6 +58,8 @@ export const createShare = async (input: CreateShareInput): Promise<{ shareId: s
     };
 
     const docRef = await addDoc(collection(db, 'shares'), shareData);
+    
+    console.log('Share saved to database. Returning key:', key);
     
     return {
       shareId: docRef.id,

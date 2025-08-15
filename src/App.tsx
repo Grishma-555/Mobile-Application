@@ -105,6 +105,8 @@ function App() {
         content: data.content,
       });
       
+      console.log('Share created in App component:', result);
+      
       showSuccess('Encrypted share created successfully!');
       await loadShares(profile);
       setActiveTab('sent');

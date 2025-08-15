@@ -26,6 +26,7 @@ const ShareForm: React.FC<ShareFormProps> = ({ onSubmit, loading }) => {
     setProgress(0);
     setShareResult(null);
 
+    console.log('Starting share creation...');
     try {
       const submitContent = contentType === 'file' ? file! : content;
       setProgress(30);
@@ -37,6 +38,7 @@ const ShareForm: React.FC<ShareFormProps> = ({ onSubmit, loading }) => {
       });
       
       setProgress(100);
+      console.log('Share created with key:', result.key);
       setShareResult(result);
       
       // Reset form
@@ -44,6 +46,7 @@ const ShareForm: React.FC<ShareFormProps> = ({ onSubmit, loading }) => {
       setFile(null);
       setRecipientEmail('');
     } catch (error) {
+      console.error('Error creating share:', error);
       setProgress(0);
     }
   };
@@ -51,6 +54,7 @@ const ShareForm: React.FC<ShareFormProps> = ({ onSubmit, loading }) => {
   const copyKey = async () => {
     if (shareResult?.key) {
       await navigator.clipboard.writeText(shareResult.key);
+      console.log('Key copied to clipboard:', shareResult.key);
       setKeyCopied(true);
       setTimeout(() => setKeyCopied(false), 2000);
     }
@@ -60,6 +64,11 @@ const ShareForm: React.FC<ShareFormProps> = ({ onSubmit, loading }) => {
     (contentType === 'file' ? file : content.trim());
 
   if (shareResult) {
+    console.log('Rendering share result with key:', shareResult.key);
+    
+    if (!shareResult.key) {
+      console.error('No decryption key found in shareResult!');
+    }
     return (
       <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-6">
         <div className="text-center">
@@ -68,7 +77,7 @@ const ShareForm: React.FC<ShareFormProps> = ({ onSubmit, loading }) => {
           </div>
           <h3 className="text-xl font-semibold text-gray-900 mb-2">Share Created Successfully!</h3>
           <p className="text-gray-600 mb-6">
-            Your encrypted content has been shared. Please copy the decryption key and share it with the recipient securely.
+            Your encrypted content has been shared. <strong>IMPORTANT:</strong> Copy the decryption key below and share it with the recipient through a secure channel (like a different messaging app).
           </p>
           
           <div className="bg-gray-50 rounded-lg p-4 mb-6">
@@ -78,7 +87,7 @@ const ShareForm: React.FC<ShareFormProps> = ({ onSubmit, loading }) => {
             <div className="flex items-center space-x-2">
               <input
                 type="text"
-                value={shareResult.key}
+                value={shareResult.key || 'Error: No key generated'}
                 readOnly
                 className="flex-1 px-3 py-2 bg-white border border-gray-300 rounded-md text-sm font-mono"
               />
@@ -90,6 +99,13 @@ const ShareForm: React.FC<ShareFormProps> = ({ onSubmit, loading }) => {
                 <span className="text-sm">{keyCopied ? 'Copied!' : 'Copy'}</span>
               </button>
             </div>
+          </div>
+
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+            <p className="text-sm text-yellow-800">
+              <strong>Security Note:</strong> This decryption key is only shown once. Make sure to copy it and share it with the recipient through a secure channel separate from this application.
+              Without this key, the encrypted content cannot be accessed.
+            </p>
           </div>
 
           <button
