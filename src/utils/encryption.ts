@@ -46,11 +46,15 @@ export const importKey = async (keyString: string): Promise<CryptoKey> => {
 
 // Encrypt data (text or file)
 export const encryptData = async (data: string | ArrayBuffer): Promise<EncryptionResult> => {
+  console.log('encryption: Starting encryptData...');
   const key = await generateKey();
+  console.log('encryption: Generated CryptoKey');
   const iv = crypto.getRandomValues(new Uint8Array(12)); // 96-bit IV for GCM
+  console.log('encryption: Generated IV');
   
   const encoder = new TextEncoder();
   const dataBuffer = typeof data === 'string' ? encoder.encode(data) : data;
+  console.log('encryption: Prepared data buffer');
   
   const ciphertext = await crypto.subtle.encrypt(
     {
@@ -60,12 +64,19 @@ export const encryptData = async (data: string | ArrayBuffer): Promise<Encryptio
     key,
     dataBuffer
   );
+  console.log('encryption: Encryption completed');
   
-  return {
+  const exportedKey = await exportKey(key);
+  console.log('encryption: Key exported, length:', exportedKey?.length);
+  
+  const result = {
     ciphertext: btoa(String.fromCharCode(...new Uint8Array(ciphertext))),
     iv: btoa(String.fromCharCode(...iv)),
-    key: await exportKey(key),
+    key: exportedKey,
   };
+  
+  console.log('encryption: Returning result with key:', result.key);
+  return result;
 };
 
 // Decrypt data

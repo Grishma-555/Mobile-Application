@@ -28,6 +28,7 @@ export interface CreateShareInput {
 
 export const createShare = async (input: CreateShareInput): Promise<{ shareId: string; key: string }> => {
   try {
+    console.log('shareService: Starting createShare...');
     let dataToEncrypt: string;
     let fileName: string | undefined;
     let fileType: string | undefined;
@@ -41,8 +42,10 @@ export const createShare = async (input: CreateShareInput): Promise<{ shareId: s
     }
 
     const { ciphertext, iv, key } = await encryptData(dataToEncrypt);
-
-    console.log('Encryption completed. Key generated:', key);
+    console.log('shareService: Encryption completed');
+    console.log('shareService: Generated key:', key);
+    console.log('shareService: Key length:', key?.length);
+    console.log('shareService: Key type:', typeof key);
 
     const shareData = {
       senderUid: input.senderUid,
@@ -58,15 +61,19 @@ export const createShare = async (input: CreateShareInput): Promise<{ shareId: s
     };
 
     const docRef = await addDoc(collection(db, 'shares'), shareData);
+    console.log('shareService: Document saved with ID:', docRef.id);
     
-    console.log('Share saved to database. Returning key:', key);
-    
-    return {
+    const returnValue = {
       shareId: docRef.id,
       key,
     };
+    
+    console.log('shareService: Returning:', returnValue);
+    console.log('shareService: Return key:', returnValue.key);
+    
+    return returnValue;
   } catch (error) {
-    console.error('Error creating share:', error);
+    console.error('shareService: Error creating share:', error);
     throw error;
   }
 };

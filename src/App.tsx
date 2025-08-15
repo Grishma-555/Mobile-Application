@@ -96,6 +96,7 @@ function App() {
     if (!user || !profile) return { shareId: '', key: '' };
 
     setShareLoading(true);
+    console.log('App: Starting handleCreateShare...');
     try {
       const result = await createShare({
         senderUid: user.uid,
@@ -105,15 +106,17 @@ function App() {
         content: data.content,
       });
       
-      console.log('Share created in App component:', result);
+      console.log('App: createShare returned:', result);
+      console.log('App: Key from createShare:', result.key);
       
       showSuccess('Encrypted share created successfully!');
       await loadShares(profile);
       setActiveTab('sent');
       
+      console.log('App: Returning result to ShareForm:', result);
       return result;
     } catch (error) {
-      console.error('Error creating share:', error);
+      console.error('App: Error creating share:', error);
       showError('Failed to create share');
       throw error;
     } finally {

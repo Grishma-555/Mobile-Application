@@ -26,7 +26,7 @@ const ShareForm: React.FC<ShareFormProps> = ({ onSubmit, loading }) => {
     setProgress(0);
     setShareResult(null);
 
-    console.log('Starting share creation...');
+    console.log('ShareForm: Starting share creation...');
     try {
       const submitContent = contentType === 'file' ? file! : content;
       setProgress(30);
@@ -37,8 +37,10 @@ const ShareForm: React.FC<ShareFormProps> = ({ onSubmit, loading }) => {
         recipientEmail,
       });
       
+      console.log('ShareForm: Received result from onSubmit:', result);
+      console.log('ShareForm: Key from result:', result.key);
+      
       setProgress(100);
-      console.log('Share created with key:', result.key);
       setShareResult(result);
       
       // Reset form
@@ -46,7 +48,7 @@ const ShareForm: React.FC<ShareFormProps> = ({ onSubmit, loading }) => {
       setFile(null);
       setRecipientEmail('');
     } catch (error) {
-      console.error('Error creating share:', error);
+      console.error('ShareForm: Error creating share:', error);
       setProgress(0);
     }
   };
@@ -64,11 +66,14 @@ const ShareForm: React.FC<ShareFormProps> = ({ onSubmit, loading }) => {
     (contentType === 'file' ? file : content.trim());
 
   if (shareResult) {
-    console.log('Rendering share result with key:', shareResult.key);
+    console.log('ShareForm: Rendering share result:', shareResult);
+    console.log('ShareForm: Key in shareResult:', shareResult.key);
+    console.log('ShareForm: ShareResult object keys:', Object.keys(shareResult));
     
     if (!shareResult.key) {
-      console.error('No decryption key found in shareResult!');
+      console.error('ShareForm: No decryption key found in shareResult!', shareResult);
     }
+    
     return (
       <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-6">
         <div className="text-center">
@@ -84,15 +89,19 @@ const ShareForm: React.FC<ShareFormProps> = ({ onSubmit, loading }) => {
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Decryption Key (Share this securely)
             </label>
+            <div className="text-xs text-gray-500 mb-2">
+              Debug: Key exists: {shareResult.key ? 'Yes' : 'No'} | Key length: {shareResult.key?.length || 0}
+            </div>
             <div className="flex items-center space-x-2">
               <input
                 type="text"
-                value={shareResult.key || 'Error: No key generated'}
+                value={shareResult.key || 'ERROR: No key found'}
                 readOnly
-                className="flex-1 px-3 py-2 bg-white border border-gray-300 rounded-md text-sm font-mono"
+                className="flex-1 px-3 py-2 bg-white border border-gray-300 rounded-md text-sm font-mono break-all"
               />
               <button
                 onClick={copyKey}
+                disabled={!shareResult.key}
                 className="px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center space-x-1"
               >
                 {keyCopied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
